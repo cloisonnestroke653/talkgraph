@@ -134,4 +134,6 @@ export interface ConversationContext<S = Record<string, unknown>> {
   goto(nodeName: string): NodeResult;
   sessionId: string;
   turn: number;
+  generate(prompt: string, opts?: { model?: string; systemPrompt?: string }): Promise<string>;
+  classify(intents: string[], opts?: { model?: string }): Promise<{ label: string; confidence: number }>;
 }

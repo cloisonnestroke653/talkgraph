@@ -1,12 +1,20 @@
 import type { CompiledFlow, FlowEvent, NodeResult } from "./types.js";
+import type { AdapterRegistry } from "./llm/registry.js";
+import type { SystemPromptBuilder } from "./llm/prompts.js";
 import { StateManager } from "./state.js";
 import { ConversationContextImpl } from "./context.js";
 import { RuntimeError } from "./errors.js";
+
+interface RuntimeOptions {
+  adapterRegistry?: AdapterRegistry;
+  systemPromptBuilder?: SystemPromptBuilder;
+}
 
 export async function* runConversation<S extends Record<string, unknown>>(
   compiled: CompiledFlow<S>,
   sessionId: string,
   initialState?: Partial<S>,
+  options?: RuntimeOptions,
 ): AsyncGenerator<FlowEvent> {
   const stateManager = new StateManager(
     compiled.stateSchema,
@@ -41,6 +49,8 @@ export async function* runConversation<S extends Record<string, unknown>>(
         state,
         stateManager,
         turn,
+        adapterRegistry: options?.adapterRegistry,
+        systemPromptBuilder: options?.systemPromptBuilder,
       });
       result = await nodeDef.handler(ctx);
     } catch (err) {

@@ -7,6 +7,13 @@ export { StateManager } from "./state.js";
 export { defineTool } from "./tools/define.js";
 export { ToolExecutor } from "./tools/executor.js";
 export { MockLLMAdapter } from "./llm/mock.js";
+export { AdapterRegistry } from "./llm/registry.js";
+export { SystemPromptBuilder } from "./llm/prompts.js";
+export { FallbackChain } from "./llm/fallback.js";
+export { AnthropicAdapter } from "./llm/anthropic.js";
+export { OpenAIAdapter } from "./llm/openai.js";
+export { OllamaAdapter } from "./llm/ollama.js";
+export { OpenAICompatibleAdapter } from "./llm/openai-compatible.js";
 
 export { FlowError, CompileError, RuntimeError, ToolError } from "./errors.js";
 export { END } from "./types.js";

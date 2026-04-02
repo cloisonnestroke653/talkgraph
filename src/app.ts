@@ -4,17 +4,22 @@ import type { ToolDefinition } from "./tools/types.js";
 import { compile } from "./compiler.js";
 import { runConversation } from "./runtime.js";
 import { FlowBuilder } from "./flow.js";
+import { AdapterRegistry } from "./llm/registry.js";
+import { SystemPromptBuilder } from "./llm/prompts.js";
 
 interface FlowPilotConfig {
   flows: FlowBuilder<any>[];
   tools?: ToolDefinition[];
   adapters?: LLMAdapter[];
   defaultModel?: string;
+  systemPrompt?: string;
 }
 
 export class FlowPilotApp {
   private readonly flows: Map<string, ReturnType<typeof compile>>;
   private readonly tools: Map<string, ToolDefinition>;
+  private readonly registry: AdapterRegistry;
+  private readonly globalSystemPrompt?: string;
 
   constructor(config: FlowPilotConfig) {
     this.flows = new Map();
@@ -27,6 +32,14 @@ export class FlowPilotApp {
     for (const tool of config.tools ?? []) {
       this.tools.set(tool.name, tool);
     }
+    this.registry = new AdapterRegistry();
+    for (const adapter of config.adapters ?? []) {
+      this.registry.register(adapter);
+    }
+    if (config.defaultModel) {
+      this.registry.setDefault(config.defaultModel);
+    }
+    this.globalSystemPrompt = config.systemPrompt;
   }
 
   run(
@@ -39,7 +52,12 @@ export class FlowPilotApp {
       throw new Error(`Flow "${flowName}" not found. Available: ${[...this.flows.keys()].join(", ")}`);
     }
     const sid = sessionId ?? `session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    return runConversation(compiled, sid);
+    return runConversation(compiled, sid, undefined, {
+      adapterRegistry: this.registry.list().length > 0 ? this.registry : undefined,
+      systemPromptBuilder: this.globalSystemPrompt
+        ? new SystemPromptBuilder({ global: this.globalSystemPrompt })
+        : undefined,
+    });
   }
 
   listFlows(): string[] {
