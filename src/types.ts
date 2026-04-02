@@ -17,7 +17,11 @@ export type FlowEvent =
   | { type: "state:update"; patch: Record<string, unknown> }
   | { type: "message"; text: string }
   | { type: "flow:complete"; sessionId: string; finalState: Record<string, unknown> }
-  | { type: "error"; error: Error; recoverable: boolean };
+  | { type: "error"; error: Error; recoverable: boolean }
+  | { type: "prompt:send"; question: string; style: "natural" | "structured"; options?: Option[] }
+  | { type: "prompt:reply"; response: string; responseTime: number }
+  | { type: "slot:fill"; slot: string; value: unknown; attempts: number }
+  | { type: "slot:retry"; slot: string; attempt: number; error: string };
 
 export interface TokenUsage {
   inputTokens: number;
@@ -85,6 +89,20 @@ export interface Option {
   value: string;
 }
 
+// ─── SlotDefinition ───────────────────────────────────
+export interface SlotDefinition {
+  prompt: string;
+  validate?: import("zod").ZodType;
+  errorMessage?: string;
+  transform?: (value: string) => unknown;
+  maxAttempts?: number;
+  onMaxAttempts?: string;
+  optional?: boolean;
+  skipKeyword?: string;
+  skip?: boolean;
+  defaultValue?: unknown;
+}
+
 // ─── Flow Definition (output of builder) ──────────────
 export interface FlowDefinition<S = Record<string, unknown>> {
   name: string;
@@ -136,4 +154,7 @@ export interface ConversationContext<S = Record<string, unknown>> {
   turn: number;
   generate(prompt: string, opts?: { model?: string; systemPrompt?: string }): Promise<string>;
   classify(intents: string[], opts?: { model?: string }): Promise<{ label: string; confidence: number }>;
+  prompt(question: string): Promise<string>;
+  promptWithOptions(question: string, options: Option[], opts?: { natural?: boolean }): Promise<string>;
+  fillSlots(schema: Record<string, SlotDefinition>): Promise<Record<string, unknown>>;
 }
