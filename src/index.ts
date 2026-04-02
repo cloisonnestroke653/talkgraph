@@ -3,6 +3,8 @@ export { compile } from "./compiler.js";
 export { runConversation } from "./runtime.js";
 export { createFlowPilot, FlowPilotApp } from "./app.js";
 export { ConversationContextImpl } from "./context.js";
+export { Conversation } from "./conversation.js";
+export type { ConversationConfig, ConversationStatus } from "./conversation.js";
 export { StateManager } from "./state.js";
 export { defineTool } from "./tools/define.js";
 export { ToolExecutor } from "./tools/executor.js";
@@ -37,6 +39,7 @@ export type {
   ConversationMessage,
   ConversationContext,
   TokenUsage,
+  SlotDefinition,
 } from "./types.js";
 
 export type {
