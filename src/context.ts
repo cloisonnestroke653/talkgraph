@@ -13,6 +13,7 @@ interface ContextInit<S extends Record<string, unknown>> {
   systemPromptBuilder?: SystemPromptBuilder;
   eventChannel?: EventChannel<FlowEvent>;
   promptFn?: (question: string, options?: Option[]) => Promise<string>;
+  pendingStateUpdate?: Record<string, unknown>;
 }
 
 export class ConversationContextImpl<S extends Record<string, unknown>>
@@ -26,6 +27,7 @@ export class ConversationContextImpl<S extends Record<string, unknown>>
   private readonly systemPromptBuilder?: SystemPromptBuilder;
   private readonly eventChannel?: EventChannel<FlowEvent>;
   private readonly promptFn?: (question: string, options?: Option[]) => Promise<string>;
+  private readonly pendingStateUpdate: Record<string, unknown>;
 
   constructor(init: ContextInit<S>) {
     this.sessionId = init.sessionId;
@@ -36,6 +38,7 @@ export class ConversationContextImpl<S extends Record<string, unknown>>
     this.systemPromptBuilder = init.systemPromptBuilder;
     this.eventChannel = init.eventChannel;
     this.promptFn = init.promptFn;
+    this.pendingStateUpdate = init.pendingStateUpdate ?? {};
   }
 
   update(partial: Partial<S>): ConversationContext<S> {
@@ -43,6 +46,8 @@ export class ConversationContextImpl<S extends Record<string, unknown>>
       this.state as S,
       partial,
     );
+    // Accumulate pending state updates for inclusion in the next NodeResult
+    const mergedPending = { ...this.pendingStateUpdate, ...partial };
     return new ConversationContextImpl({
       sessionId: this.sessionId,
       state: newState,
@@ -52,19 +57,29 @@ export class ConversationContextImpl<S extends Record<string, unknown>>
       systemPromptBuilder: this.systemPromptBuilder,
       eventChannel: this.eventChannel,
       promptFn: this.promptFn,
+      pendingStateUpdate: mergedPending,
     });
   }
 
   reply(text: string): NodeResult {
-    return { type: "reply", text };
+    const stateUpdate = Object.keys(this.pendingStateUpdate).length > 0
+      ? this.pendingStateUpdate
+      : undefined;
+    return { type: "reply", text, stateUpdate };
   }
 
   goto(nodeName: string): NodeResult {
-    return { type: "goto", gotoNode: nodeName };
+    const stateUpdate = Object.keys(this.pendingStateUpdate).length > 0
+      ? this.pendingStateUpdate
+      : undefined;
+    return { type: "goto", gotoNode: nodeName, stateUpdate };
   }
 
   replyAndGoto(text: string, nodeName: string): NodeResult {
-    return { type: "reply_goto", text, gotoNode: nodeName };
+    const stateUpdate = Object.keys(this.pendingStateUpdate).length > 0
+      ? this.pendingStateUpdate
+      : undefined;
+    return { type: "reply_goto", text, gotoNode: nodeName, stateUpdate };
   }
 
   async generate(prompt: string, opts?: { model?: string; systemPrompt?: string }): Promise<string> {
