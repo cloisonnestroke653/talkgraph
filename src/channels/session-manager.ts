@@ -45,4 +45,8 @@ export class SessionManager {
   activeSessions(): string[] {
     return [...this.sessions.keys()];
   }
+
+  getFlowNames(): string[] {
+    return [...this.config.compiledFlows.keys()];
+  }
 }
